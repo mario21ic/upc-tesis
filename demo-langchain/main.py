@@ -49,8 +49,6 @@ text = text[0].page_content
 """
 
 #print("text", text)
-
-
 # print(text[:1000])
 
 
@@ -85,47 +83,41 @@ embeddings = HuggingFaceBgeEmbeddings(model_name="sentence-transformers/paraphra
 from langchain_community.vectorstores import FAISS
 
 knowledge_base = FAISS.from_texts(chunks, embeddings)
-#pregunta = "Como se llama el caso de estudio?"
-#docs = knowledge_base.similarity_search(pregunta, k=3)
-# print("docs:", docs)
 
 
 import os
 os.environ["OPENAI_API_KEY"]
 
 # 4. Preguntar al documento
-# from dotenv import load_dotenv
-# load_dotenv()
-
-# from langchain.chat_models import ChatOpenAI
-# from langchain_community.chat_models import ChatOpenAI
 from langchain_openai import ChatOpenAI
-
 from langchain.chains.question_answering import load_qa_chain
 
-#llm = ChatOpenAI(model_name="gpt-3.5-turbo")
+# llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 # llm = ChatOpenAI(model_name="gpt-4-turbo")
-llm = ChatOpenAI(model_name="gpt-4o")
+llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
 
 chain = load_qa_chain(llm, chain_type="stuff")
 
-# pregunta = "Indica qué curvas elípticas se pueden utilizar para firmar certificados con ECDSA?"
-pregunta = "Tell which elliptic curves can be used to sign certificates with ECDSA?"
-# pregunta = input("Ingrese la pregunta: ")
-print("pregunta: ", pregunta)
+while True:
+    # pregunta = "Indica qué curvas elípticas se pueden utilizar para firmar certificados con ECDSA?"
+    pregunta = "cuales son las curvas elipticas que se pueden usar para firmar certificados con ECDSA?"
+    # pregunta = "Tell which elliptic curves can be used to sign certificates with ECDSA?"
+    # pregunta = "What elliptic curve algorithms can be used in certificate chains according to the CA/Browser Forum’s Baseline Requirements for the Issuance and Management of Publicly-Trusted TLS Server Certificates and the Mozilla Root Store Policy?"
+    pregunta = input("Ingrese la pregunta: ")
+    print("Pregunta: ", pregunta)
 
-# docs = knowledge_base.similarity_search(pregunta, k=3)
-docs = knowledge_base.similarity_search(pregunta) # k default is 20
-
-
-# 5. Respuesta
-respuesta = chain.run(input_documents=docs, question=pregunta)
-print(f"Respuesta ChatGPT: {respuesta}")
+    # docs = knowledge_base.similarity_search(pregunta, k=3)
+    docs = knowledge_base.similarity_search(pregunta) # k default is 20
 
 
-# 6. Review cost
-#from langchain.callbacks import get_openai_callback
-#with get_openai_callback() as cb:
-#    response = chain.run(input_documents=docs, question=pregunta)
-#    print(cb)
+    # 5. Respuesta
+    respuesta = chain.run(input_documents=docs, question=pregunta)
+    print(f"Respuesta: {respuesta}")
+    print("="*15)
+
+    # 6. Review cost
+    #from langchain.callbacks import get_openai_callback
+    #with get_openai_callback() as cb:
+    #    response = chain.run(input_documents=docs, question=pregunta)
+    #    print(cb)
 

@@ -1,0 +1,11 @@
+- Muestre tu fuente, si es la del contexto (y cual) o del suyo. Quizas prompting.
+- Soporta multilenguajes, es decir si detecta español o inglés y lo traduce.
+- Mejorar un prompt para luego pasarle.
+- Agregar un DB vectorial
+- Diagramar arquitectura.
+- Enlazar varios models acorde a su especialidad: tips, mejorar prompt, imagen, chat, etc.
+- Agregar memoria al chat
+- Poner en web con streamlit
+- Definir tipo de fuentes: md, pdf, correos, ppt, etc
+- Diagramar procesos para alimentacion, correccion, etc.
+- Hacer PoC sobre diferentes soluciones/plataformas: aws, azure, openai, etc
