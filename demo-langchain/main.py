@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
-from PyPDF2 import PdfReader
 
 # 1. Leer Documento
 
@@ -15,16 +16,28 @@ from PyPDF2 import PdfReader
 
 text = ""
 
-pdf_obj = open("BR.pdf", "rb")
-pdf_reader = PdfReader(pdf_obj)
-for page in pdf_reader.pages:
-    text += page.extract_text()
+# PDF
+# from PyPDF2 import PdfReader
+# pdf_obj = open("BR.pdf", "rb")
+# pdf_reader = PdfReader(pdf_obj)
+# for page in pdf_reader.pages:
+#     text += page.extract_text()
+# pdf_obj = open("policy.pdf", "rb")
+# pdf_reader = PdfReader(pdf_obj)
+# for page in pdf_reader.pages:
+#     text += page.extract_text()
 
+# Markdown
+from langchain_community.document_loaders import UnstructuredMarkdownLoader
+from langchain_core.documents import Document
 
-pdf_obj = open("policy.pdf", "rb")
-pdf_reader = PdfReader(pdf_obj)
-for page in pdf_reader.pages:
-    text += page.extract_text()
+loader = UnstructuredMarkdownLoader("BR.md")
+data = loader.load()
+text += data[0].page_content
+
+loader = UnstructuredMarkdownLoader("policy.md")
+data = loader.load()
+text += data[0].page_content
 
 """
 # Ejemplo con ppt
@@ -57,7 +70,8 @@ print("chunks:", len(chunks))
 
 
 # 3. Embeddings
-from langchain.embeddings import HuggingFaceBgeEmbeddings
+# from langchain.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
 
 """
@@ -66,16 +80,10 @@ sentence-transformers/paraphrase-multilingual-mpnet-base-v2 # 1.11G
 """
 embeddings = HuggingFaceBgeEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
 
-# Ejemplo de embedding
-from sentence_transformers import SentenceTransformer
-
-model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
-sentence_embeddings = model.encode("El perro de san roque no tiene rabo")
-# print(len(sentence_embeddings)) # dimensiones del embedding
-# print(sentence_embeddings)
-
 # Crear embeddings de todo el texto
-from langchain.vectorstores import FAISS
+# from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
+
 knowledge_base = FAISS.from_texts(chunks, embeddings)
 #pregunta = "Como se llama el caso de estudio?"
 #docs = knowledge_base.similarity_search(pregunta, k=3)
@@ -86,29 +94,38 @@ import os
 os.environ["OPENAI_API_KEY"]
 
 # 4. Preguntar al documento
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
-from langchain.chat_models import ChatOpenAI
+# from langchain.chat_models import ChatOpenAI
+# from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
+
 from langchain.chains.question_answering import load_qa_chain
 
 #llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 # llm = ChatOpenAI(model_name="gpt-4-turbo")
-
 llm = ChatOpenAI(model_name="gpt-4o")
+
 chain = load_qa_chain(llm, chain_type="stuff")
 
-pregunta = "Indica qué curvas elípticas se pueden utilizar para firmar certificados con ECDSA?"
+# pregunta = "Indica qué curvas elípticas se pueden utilizar para firmar certificados con ECDSA?"
+pregunta = "Tell which elliptic curves can be used to sign certificates with ECDSA?"
 # pregunta = input("Ingrese la pregunta: ")
 print("pregunta: ", pregunta)
 
-docs = knowledge_base.similarity_search(pregunta, k=3)
+# docs = knowledge_base.similarity_search(pregunta, k=3)
+docs = knowledge_base.similarity_search(pregunta) # k default is 20
+
+
+# 5. Respuesta
 respuesta = chain.run(input_documents=docs, question=pregunta)
 print(f"Respuesta ChatGPT: {respuesta}")
 
-# 5. Review cost
-from langchain.callbacks import get_openai_callback
-with get_openai_callback() as cb:
-    response = chain.run(input_documents=docs, question=pregunta)
-    print(cb)
+
+# 6. Review cost
+#from langchain.callbacks import get_openai_callback
+#with get_openai_callback() as cb:
+#    response = chain.run(input_documents=docs, question=pregunta)
+#    print(cb)
 
