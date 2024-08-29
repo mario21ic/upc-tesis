@@ -7,7 +7,10 @@ procesos de manera secuencial.
 """
 
 import os
-from langchain import LLMChain, OpenAI, PromptTemplate
+from langchain_core.prompts import PromptTemplate
+from langchain.chains import LLMChain
+#from langchain_community.llms import OpenAI
+from langchain_openai import OpenAI
 from langchain.chains import SimpleSequentialChain
 
 API = os.environ['OPENAI_API_KEY']
@@ -31,5 +34,9 @@ cadena_inicio = LLMChain(llm=llm, prompt=template, output_key="donde_iniciar")
 
 # # EJECUTAMOS CHAIN
 cadena_simple = SimpleSequentialChain(chains=[cadena_lista, cadena_inicio], verbose=True)
-# cadena_simple.run("What is RSA?")
-cadena_simple.run("Que es RSA?")
+#cadena_simple.run("What is RSA?")
+#cadena_simple.run("What is RSA and give me an code example?")
+#cadena_simple.run("Que es RSA?")
+cadena_simple.run("Que es encriptado asimetrico y que algoritmos soporta?")
+#cadena_simple.run("q es RSA")
+# cadena_simple.run("q ez RSA") # error
